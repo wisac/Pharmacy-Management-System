@@ -78,6 +78,11 @@ public class DatabaseConnection {
                         rs.getDouble("price"),
                         rs.getInt("quantity")
                 );
+
+                // Fetch suppliers for this drug
+                List<Supplier> suppliers = getSuppliersForDrug(drug.getDrugCode());
+                drug.setSuppliers(suppliers);
+
                 drugs.add(drug);
             }
         } catch (SQLException e) {
@@ -261,6 +266,31 @@ public class DatabaseConnection {
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "%" + searchTerm + "%");
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Supplier supplier = new Supplier(
+                        rs.getString("supplier_id"),
+                        rs.getString("name"),
+                        rs.getString("location")
+                );
+                suppliers.add(supplier);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return suppliers;
+    }
+    public List<Supplier> getSuppliersForDrug(String drugCode) {
+        List<Supplier> suppliers = new ArrayList<>();
+        String sql = "SELECT s.supplier_id, s.name, s.location FROM suppliers s " +
+                "JOIN drug_suppliers ds ON s.supplier_id = ds.supplier_id " +
+                "WHERE ds.drug_code = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, drugCode);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {

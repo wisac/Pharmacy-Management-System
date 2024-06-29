@@ -11,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AddDrugForm {
@@ -37,6 +36,7 @@ public class AddDrugForm {
         Label descriptionLabel = new Label("Description:");
         GridPane.setConstraints(descriptionLabel, 0, 2);
         TextArea descriptionInput = new TextArea();
+        descriptionInput.setPrefRowCount(3); // Set number of rows for TextArea
         GridPane.setConstraints(descriptionInput, 1, 2);
 
         Label priceLabel = new Label("Price:");
@@ -71,14 +71,22 @@ public class AddDrugForm {
             double price = Double.parseDouble(priceInput.getText());
             int quantity = Integer.parseInt(quantityInput.getText());
 
+            // Create the Drug object
             Drug drug = new Drug(drugCode, name, description, price, quantity);
+
+            // Add the drug to the database
+            db.addDrug(drug);
+
+            // Get the drug code after insertion
+            drugCode = drug.getDrugCode(); // This ensures you have the correct drug code after insertion
+
+            // Link selected suppliers to the drug
             Supplier selectedSupplier = suppliersCombo.getValue();
             if (selectedSupplier != null) {
-                drug.addSupplier(selectedSupplier);
-                db.linkSupplierToDrug(drugCode, selectedSupplier.getSupplierId());
+                drug.addSupplier(selectedSupplier); // Add to the local Drug object
+                db.linkSupplierToDrug(drugCode, selectedSupplier.getSupplierId()); // Persist in the database
             }
 
-            db.addDrug(drug);
             stage.close();
         });
 
@@ -86,7 +94,7 @@ public class AddDrugForm {
                 descriptionInput, priceLabel, priceInput, quantityLabel, quantityInput, suppliersLabel,
                 suppliersCombo, addButton);
 
-        Scene scene = new Scene(gridPane, 400, 400);
+        Scene scene = new Scene(gridPane, 600, 400); // Increased width and height
         stage.setScene(scene);
         stage.show();
     }
