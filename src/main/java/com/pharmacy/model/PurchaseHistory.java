@@ -1,15 +1,15 @@
 package com.pharmacy.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class PurchaseHistory {
     private int id;
     private String drugCode;
-    private Date purchaseDate;
+    private Timestamp purchaseDate;
     private String buyer;
     private int quantity;
     private double totalAmount;
-
     /**
      * Constructor to initialize a PurchaseHistory object.
      *
@@ -20,7 +20,7 @@ public class PurchaseHistory {
      * @param quantity      the quantity purchased
      * @param totalAmount   the total amount spent
      */
-    public PurchaseHistory(int id, String drugCode, Date purchaseDate, String buyer, int quantity, double totalAmount) {
+    public PurchaseHistory(int id, String drugCode, Timestamp purchaseDate, String buyer, int quantity, double totalAmount) {
         this.id = id;
         this.drugCode = drugCode;
         this.purchaseDate = purchaseDate;
@@ -70,7 +70,7 @@ public class PurchaseHistory {
      *
      * @return the date of the purchase
      */
-    public Date getPurchaseDate() {
+    public Timestamp getPurchaseDate() {
         return purchaseDate;
     }
 
@@ -79,7 +79,7 @@ public class PurchaseHistory {
      *
      * @param purchaseDate the date of the purchase
      */
-    public void setPurchaseDate(Date purchaseDate) {
+    public void setPurchaseDate(Timestamp purchaseDate) {
         this.purchaseDate = purchaseDate;
     }
 

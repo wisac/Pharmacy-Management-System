@@ -2,7 +2,6 @@ package com.pharmacy.ui;
 
 import com.pharmacy.database.DatabaseConnection;
 import com.pharmacy.model.Drug;
-import com.pharmacy.model.PurchaseHistory;
 import com.pharmacy.model.Supplier;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -12,11 +11,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +27,9 @@ public class ViewDrugs {
         Stage stage = new Stage();
         stage.setTitle("View Drugs");
 
+        BorderPane root = new BorderPane();
+
+        // Table view setup
         table = new TableView<>(); // Initialize table here
 
         ObservableList<Drug> drugs = FXCollections.observableArrayList(new DatabaseConnection().getAllDrugs());
@@ -117,7 +119,7 @@ public class ViewDrugs {
                     {
                         purchaseButton.setOnAction((event) -> {
                             Drug drug = getTableView().getItems().get(getIndex());
-                            showPurchaseForm(drug.getDrugCode()); // Show purchase form for the selected drug
+                            showPurchaseForm(drug.getDrugCode(), drug.getQuantity(), drug.getPrice()); // Show purchase form for the selected drug
                         });
                     }
 
@@ -144,7 +146,15 @@ public class ViewDrugs {
         vbox.getChildren().addAll(table);
         vbox.setPadding(new Insets(10));
 
-        Scene scene = new Scene(vbox, 1000, 600);
+        // Button setup
+        Button refreshButton = new Button("Refresh");
+        refreshButton.setOnAction(e -> refreshTable());
+
+        // Adding table and refresh button to the root pane
+        root.setCenter(vbox);
+        root.setBottom(refreshButton);
+
+        Scene scene = new Scene(root, 1000, 600);
         stage.setScene(scene);
         stage.show();
     }
@@ -156,23 +166,9 @@ public class ViewDrugs {
     }
 
     // Method to show the purchase form
-    private void showPurchaseForm(String drugCode) {
+    private void showPurchaseForm(String drugCode, int oldQuantity, double price) {
         PurchaseDrugForm purchaseDrugForm = new PurchaseDrugForm();
-        purchaseDrugForm.showForm(drugCode);
-    }
-
-    private void purchaseDrug(Drug drug, int quantity, String buyer) {
-        double totalAmount = drug.getPrice() * quantity;
-        PurchaseHistory purchaseHistory = new PurchaseHistory(0, drug.getDrugCode(), new Date(24,6,28), buyer, quantity, totalAmount);
-
-        DatabaseConnection db = new DatabaseConnection();
-        db.addPurchaseHistory(purchaseHistory);
-
-        // Optionally, you might want to update the quantity of the drug in the database
-         //db.updateDrugQuantity(drug.getDrugCode(), drug.getQuantity() - quantity);
-
-        // Refresh the table or update UI as needed
-        refreshTable(); // Make sure this method updates the UI with current data
+        purchaseDrugForm.showForm(drugCode, oldQuantity, price);
     }
 
     // Other methods...

@@ -121,12 +121,19 @@ public class DatabaseConnection {
      * @param drugCode the code of the drug to delete
      */
     public void deleteDrug(String drugCode) {
+        String deletePurchaseHistorySql = "DELETE FROM purchase_history WHERE drug_code = ?";
         String sql = "DELETE FROM drugs WHERE drug_code = ?";
 
+
         try (Connection conn = this.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, drugCode);
-            pstmt.executeUpdate();
+             PreparedStatement pstmtDelPur = conn.prepareStatement(deletePurchaseHistorySql);
+             PreparedStatement pstmtDelDrug = conn.prepareStatement(sql)) {
+
+             pstmtDelPur.setString(1,drugCode);
+             pstmtDelPur.executeUpdate();
+
+            pstmtDelDrug.setString(1, drugCode);
+            pstmtDelDrug.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -414,14 +421,16 @@ public class DatabaseConnection {
     }
 
     public void purchaseDrug(PurchaseHistory purchase) {
-        String sql = "INSERT INTO purchase_history(drug_code, buyer, quantity, total_amount) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO purchase_history(drug_code, purchase_date,buyer, quantity, total_amount) VALUES (?, ?, ?, ?,?)";
 
+        System.out.println("purcha"+purchase.getPurchaseDate());
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, purchase.getDrugCode());
-            pstmt.setString(2, purchase.getBuyer());
-            pstmt.setInt(3, purchase.getQuantity());
-            pstmt.setDouble(4, purchase.getTotalAmount());
+            pstmt.setTimestamp(2,purchase.getPurchaseDate());
+            pstmt.setString(3, purchase.getBuyer());
+            pstmt.setInt(4, purchase.getQuantity());
+            pstmt.setDouble(5, purchase.getTotalAmount());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -445,6 +454,33 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Updates the quantity of a drug in the database.
+     *
+     * @param drugCode  the code of the drug to update
+     * @param newQuantity the new quantity of the drug
+     */
+    public void updateDrugQuantity(String drugCode, int newQuantity) {
+//        Connection conn = null;
+            String sql = "UPDATE drugs SET quantity = ? WHERE drug_code = ?";
+
+        try {
+            Connection conn = this.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, newQuantity);
+            pstmt.setString(2, drugCode);
+            pstmt.executeUpdate();
+            System.out.println(drugCode + "  " + newQuantity);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the exception as needed
+        }
+//        finally {
+//            closeResources(conn, stmt, null);
+//        }
     }
 
 }
