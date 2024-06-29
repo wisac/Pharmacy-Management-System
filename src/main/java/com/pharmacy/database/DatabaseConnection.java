@@ -413,4 +413,38 @@ public class DatabaseConnection {
         }
     }
 
+    public void purchaseDrug(PurchaseHistory purchase) {
+        String sql = "INSERT INTO purchase_history(drug_code, buyer, quantity, total_amount) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, purchase.getDrugCode());
+            pstmt.setString(2, purchase.getBuyer());
+            pstmt.setInt(3, purchase.getQuantity());
+            pstmt.setDouble(4, purchase.getTotalAmount());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Adds a purchase history record to the database.
+     *
+     * @param purchaseHistory the PurchaseHistory object to be added
+     */
+    public void addPurchaseHistory(PurchaseHistory purchaseHistory) {
+        String sql = "INSERT INTO purchase_history(drug_code, buyer, quantity, total_amount) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, purchaseHistory.getDrugCode());
+            pstmt.setString(2, purchaseHistory.getBuyer());
+            pstmt.setInt(3, purchaseHistory.getQuantity());
+            pstmt.setDouble(4, purchaseHistory.getTotalAmount());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
