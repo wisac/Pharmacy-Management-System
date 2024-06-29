@@ -384,4 +384,33 @@ public class DatabaseConnection {
 
         return suppliers;
     }
+
+
+    /**
+     * Deletes a supplier from the database based on the supplier ID.
+     *
+     * @param supplierId the ID of the supplier to delete
+     */
+    public void deleteSupplier(String supplierId) {
+        // Delete associated records in drug_suppliers first
+        String deleteDrugSuppliersSql = "DELETE FROM drug_suppliers WHERE supplier_id = ?";
+        String deleteSupplierSql = "DELETE FROM suppliers WHERE supplier_id = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmtDeleteDrugSuppliers = conn.prepareStatement(deleteDrugSuppliersSql);
+             PreparedStatement pstmtDeleteSupplier = conn.prepareStatement(deleteSupplierSql)) {
+
+            // Delete from drug_suppliers table
+            pstmtDeleteDrugSuppliers.setString(1, supplierId);
+            pstmtDeleteDrugSuppliers.executeUpdate();
+
+            // Delete from suppliers table
+            pstmtDeleteSupplier.setString(1, supplierId);
+            pstmtDeleteSupplier.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
