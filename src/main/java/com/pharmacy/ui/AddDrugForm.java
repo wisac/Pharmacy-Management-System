@@ -13,7 +13,16 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
+/**
+ * The AddDrugForm class represents the UI form for adding a new drug to the pharmacy system.
+ * It provides input fields for drug details and allows the selection of suppliers.
+ */
 public class AddDrugForm {
+
+    /**
+     * Displays the Add Drug form in a new window.
+     * The form includes input fields for drug details and a dropdown for selecting suppliers.
+     */
     public void showForm() {
         Stage stage = new Stage();
         stage.setTitle("Add Drug");
@@ -23,44 +32,52 @@ public class AddDrugForm {
         gridPane.setVgap(8);
         gridPane.setHgap(10);
 
+        // Drug Code input
         Label drugCodeLabel = new Label("Drug Code:");
         GridPane.setConstraints(drugCodeLabel, 0, 0);
         TextField drugCodeInput = new TextField();
         GridPane.setConstraints(drugCodeInput, 1, 0);
 
+        // Drug Name input
         Label nameLabel = new Label("Name:");
         GridPane.setConstraints(nameLabel, 0, 1);
         TextField nameInput = new TextField();
         GridPane.setConstraints(nameInput, 1, 1);
 
+        // Drug Description input
         Label descriptionLabel = new Label("Description:");
         GridPane.setConstraints(descriptionLabel, 0, 2);
         TextArea descriptionInput = new TextArea();
         descriptionInput.setPrefRowCount(3); // Set number of rows for TextArea
         GridPane.setConstraints(descriptionInput, 1, 2);
 
+        // Drug Price input
         Label priceLabel = new Label("Price:");
         GridPane.setConstraints(priceLabel, 0, 3);
         TextField priceInput = new TextField();
         GridPane.setConstraints(priceInput, 1, 3);
 
+        // Drug Quantity input
         Label quantityLabel = new Label("Quantity:");
         GridPane.setConstraints(quantityLabel, 0, 4);
         TextField quantityInput = new TextField();
         GridPane.setConstraints(quantityInput, 1, 4);
 
+        // Suppliers dropdown
         Label suppliersLabel = new Label("Suppliers:");
         GridPane.setConstraints(suppliersLabel, 0, 5);
         ComboBox<Supplier> suppliersCombo = new ComboBox<>();
         suppliersCombo.setPrefWidth(200);
         GridPane.setConstraints(suppliersCombo, 1, 5);
 
+        // Database connection to fetch suppliers
         DatabaseConnection db = new DatabaseConnection();
         List<Supplier> allSuppliers = db.getAllSuppliers();
 
         ObservableList<Supplier> suppliersList = FXCollections.observableArrayList(allSuppliers);
         suppliersCombo.setItems(suppliersList);
 
+        // Add Drug button
         Button addButton = new Button("Add Drug");
         GridPane.setConstraints(addButton, 1, 6);
 

@@ -1,6 +1,8 @@
 package com.pharmacy.database;
 
-import com.pharmacy.model.*;
+import com.pharmacy.model.Drug;
+import com.pharmacy.model.PurchaseHistory;
+import com.pharmacy.model.Supplier;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,6 +13,11 @@ public class DatabaseConnection {
     private final String user = "root";
     private final String password = "password";
 
+    /**
+     * Establishes a connection to the database.
+     *
+     * @return the Connection object
+     */
     public Connection connect() {
         Connection conn = null;
         try {
@@ -21,6 +28,11 @@ public class DatabaseConnection {
         return conn;
     }
 
+    /**
+     * Adds a new drug to the database.
+     *
+     * @param drug the Drug object to be added
+     */
     public void addDrug(Drug drug) {
         String sql = "INSERT INTO drugs(drug_code, name, description, price, quantity) VALUES(?, ?, ?, ?, ?)";
 
@@ -37,6 +49,12 @@ public class DatabaseConnection {
         }
     }
 
+    /**
+     * Retrieves a drug from the database based on the drug code.
+     *
+     * @param drugCode the code of the drug to be retrieved
+     * @return the Drug object if found, otherwise null
+     */
     public Drug getDrug(String drugCode) {
         String sql = "SELECT * FROM drugs WHERE drug_code = ?";
         Drug drug = null;
@@ -62,6 +80,11 @@ public class DatabaseConnection {
         return drug;
     }
 
+    /**
+     * Retrieves all drugs from the database.
+     *
+     * @return a list of Drug objects
+     */
     public List<Drug> getAllDrugs() {
         List<Drug> drugs = new ArrayList<>();
         String sql = "SELECT * FROM drugs";
@@ -92,59 +115,80 @@ public class DatabaseConnection {
         return drugs;
     }
 
+    /**
+     * Deletes a drug from the database based on the drug code.
+     *
+     * @param drugCode the code of the drug to delete
+     */
+    public void deleteDrug(String drugCode) {
+        String sql = "DELETE FROM drugs WHERE drug_code = ?";
 
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, drugCode);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     * Searches for drugs in the database based on a search term and category.
+     *
+     * @param searchTerm the term to search for
+     * @param searchBy   the category to search by (name, price, drug_code)
+     * @return a list of Drug objects matching the search criteria
+     */
+    public List<Drug> searchDrugs(String searchTerm, String searchBy) {
+        List<Drug> drugs = new ArrayList<>();
+        String sql = "SELECT * FROM drugs WHERE ";
 
-        public List<Drug> searchDrugs(String searchTerm, String searchBy) {
-            List<Drug> drugs = new ArrayList<>();
-            String sql = "SELECT * FROM drugs WHERE ";
-
-            switch (searchBy) {
-                case "name":
-                    sql += "name LIKE ?";
-                    break;
-                case "price":
-                    sql += "price = ?";
-                    break;
-                case "drug_code":
-                    sql += "drug_code LIKE ?";
-                    break;
-                default:
-                    return drugs;
-            }
-
-            try (Connection conn = this.connect();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                if (searchBy.equals("price")) {
-                    pstmt.setDouble(1, Double.parseDouble(searchTerm));
-                } else {
-                    pstmt.setString(1, "%" + searchTerm + "%");
-                }
-                ResultSet rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    Drug drug = new Drug(
-                            rs.getString("drug_code"),
-                            rs.getString("name"),
-                            rs.getString("description"),
-                            rs.getDouble("price"),
-                            rs.getInt("quantity")
-                    );
-                    drugs.add(drug);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            return drugs;
+        switch (searchBy) {
+            case "name":
+                sql += "name LIKE ?";
+                break;
+            case "price":
+                sql += "price = ?";
+                break;
+            case "drug_code":
+                sql += "drug_code LIKE ?";
+                break;
+            default:
+                return drugs;
         }
 
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            if (searchBy.equals("price")) {
+                pstmt.setDouble(1, Double.parseDouble(searchTerm));
+            } else {
+                pstmt.setString(1, "%" + searchTerm + "%");
+            }
+            ResultSet rs = pstmt.executeQuery();
 
+            while (rs.next()) {
+                Drug drug = new Drug(
+                        rs.getString("drug_code"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getInt("quantity")
+                );
+                drugs.add(drug);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
+        return drugs;
+    }
 
-
-
-
+    /**
+     * Retrieves the purchase history for a specific drug.
+     *
+     * @param drugCode the code of the drug
+     * @return a list of PurchaseHistory objects
+     */
     public List<PurchaseHistory> getPurchaseHistory(String drugCode) {
         List<PurchaseHistory> purchaseHistoryList = new ArrayList<>();
         String sql = "SELECT * FROM purchase_history WHERE drug_code = ? ORDER BY purchase_date DESC";
@@ -172,6 +216,12 @@ public class DatabaseConnection {
         return purchaseHistoryList;
     }
 
+    /**
+     * Retrieves the suppliers for a specific drug.
+     *
+     * @param drugCode the code of the drug
+     * @return a list of Supplier objects
+     */
     public List<Supplier> getSuppliers(String drugCode) {
         List<Supplier> suppliers = new ArrayList<>();
         String sql = "SELECT s.* FROM suppliers s JOIN drug_suppliers ds ON s.supplier_id = ds.supplier_id WHERE ds.drug_code = ?";
@@ -195,8 +245,11 @@ public class DatabaseConnection {
         return suppliers;
     }
 
-    // Add these methods to DatabaseConnection.java
-
+    /**
+     * Adds a new supplier to the database.
+     *
+     * @param supplier the Supplier object to be added
+     */
     public void addSupplier(Supplier supplier) {
         String sql = "INSERT INTO suppliers(supplier_id, name, location) VALUES(?, ?, ?)";
 
@@ -211,6 +264,11 @@ public class DatabaseConnection {
         }
     }
 
+    /**
+     * Retrieves all suppliers from the database.
+     *
+     * @return a list of Supplier objects
+     */
     public List<Supplier> getAllSuppliers() {
         List<Supplier> suppliers = new ArrayList<>();
         String sql = "SELECT * FROM suppliers";
@@ -234,6 +292,12 @@ public class DatabaseConnection {
         return suppliers;
     }
 
+    /**
+     * Links a supplier to a drug in the database.
+     *
+     * @param drugCode   the code of the drug
+     * @param supplierId the ID of the supplier
+     */
     public void linkSupplierToDrug(String drugCode, String supplierId) {
         String sql = "INSERT INTO drug_suppliers(drug_code, supplier_id) VALUES (?, ?)";
 
@@ -247,7 +311,13 @@ public class DatabaseConnection {
         }
     }
 
-
+    /**
+     * Searches for suppliers in the database based on a search term and category.
+     *
+     * @param searchTerm the term to search for
+     * @param searchBy   the category to search by (name, location)
+     * @return a list of Supplier objects matching the search criteria
+     */
     public List<Supplier> searchSuppliers(String searchTerm, String searchBy) {
         List<Supplier> suppliers = new ArrayList<>();
         String sql = "SELECT * FROM suppliers WHERE ";
@@ -282,6 +352,13 @@ public class DatabaseConnection {
 
         return suppliers;
     }
+
+    /**
+     * Retrieves the suppliers for a specific drug.
+     *
+     * @param drugCode the code of the drug
+     * @return a list of Supplier objects
+     */
     public List<Supplier> getSuppliersForDrug(String drugCode) {
         List<Supplier> suppliers = new ArrayList<>();
         String sql = "SELECT s.supplier_id, s.name, s.location FROM suppliers s " +
@@ -307,6 +384,4 @@ public class DatabaseConnection {
 
         return suppliers;
     }
-
-
 }

@@ -16,8 +16,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * The main class for the Pharmacy Management System application.
+ * Initializes and displays the main user interface with menus and functionality.
+ */
 public class PharmacyManagementSystem extends Application {
 
+    /**
+     * Starts the application by setting up the primary stage and displaying the main UI.
+     *
+     * @param primaryStage The primary stage of the application.
+     */
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Pharmacy Management System");
@@ -122,6 +131,11 @@ public class PharmacyManagementSystem extends Application {
         primaryStage.show();
     }
 
+    /**
+     * The main method to launch the application.
+     *
+     * @param args Command line arguments (not used in this application).
+     */
     public static void main(String[] args) {
         launch(args);
     }
